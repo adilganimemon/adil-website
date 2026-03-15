@@ -88,6 +88,38 @@ const booksData = [
     }
 ];
 
+// Slider Data
+const sliderData = [
+    {
+        title: null,
+        description: null,
+        image: 'images/golden-gate-bridge.jpg',
+        link: '#travel',
+        linkText: 'View Latest Travel'
+    },
+    {
+        title: null,
+        description: null,
+        image: 'images/about-nature-tech.jpg',
+        link: '#about',
+        linkText: 'About Me'
+    },
+    {
+        title: null,
+        description: null,
+        image: 'images/technology-coding.jpg',
+        link: '#technology',
+        linkText: 'View Technologies'
+    },
+    {
+        title: null,
+        description: null,
+        image: 'images/books-reading.jpg',
+        link: '#books',
+        linkText: 'See Books'
+    }
+];
+
 // Travel Data
 const travelData = [
     {

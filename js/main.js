@@ -148,6 +148,147 @@ function loadBooksContent() {
     });
 }
 
+// ===== Slider Functionality =====
+let currentSlide = 0;
+let sliderInterval = null;
+
+function initSlider() {
+    const sliderContainer = document.getElementById('slider-container');
+    const dotsContainer = document.getElementById('slider-dots');
+    
+    // Create slides
+    sliderData.forEach((slide, index) => {
+        const slideElement = document.createElement('div');
+        slideElement.className = 'slider__slide';
+        if (index === 0) slideElement.classList.add('active');
+        
+        if (slide.image) {
+            const image = document.createElement('img');
+            image.className = 'slider__slide-image';
+            image.src = slide.image;
+            image.alt = slide.title;
+            image.onerror = function() {
+                // If image fails, show content instead
+                this.style.display = 'none';
+                const content = createSlideContent(slide);
+                slideElement.appendChild(content);
+            };
+            slideElement.appendChild(image);
+            // Add content overlay on top of image
+            const content = createSlideContent(slide);
+            content.classList.add('slider__slide-content--overlay');
+            slideElement.appendChild(content);
+        } else {
+            const content = createSlideContent(slide);
+            slideElement.appendChild(content);
+        }
+        
+        sliderContainer.appendChild(slideElement);
+        
+        // Create dot
+        const dot = document.createElement('button');
+        dot.className = 'slider__dot';
+        if (index === 0) dot.classList.add('active');
+        dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+        dot.addEventListener('click', () => goToSlide(index));
+        dotsContainer.appendChild(dot);
+    });
+    
+    // Set up navigation buttons
+    const prevButton = document.getElementById('slider-prev');
+    const nextButton = document.getElementById('slider-next');
+    
+    prevButton.addEventListener('click', () => previousSlide());
+    nextButton.addEventListener('click', () => nextSlide());
+    
+    // Auto-play slider
+    startAutoPlay();
+    
+    // Pause on hover
+    sliderContainer.addEventListener('mouseenter', stopAutoPlay);
+    sliderContainer.addEventListener('mouseleave', startAutoPlay);
+}
+
+function createSlideContent(slide) {
+    const content = document.createElement('div');
+    content.className = 'slider__slide-content';
+    
+    // Only add title if it exists
+    if (slide.title) {
+        const title = document.createElement('h2');
+        title.className = 'slider__slide-title';
+        title.textContent = slide.title;
+        content.appendChild(title);
+    }
+    
+    // Only add description if it exists
+    if (slide.description) {
+        const description = document.createElement('p');
+        description.className = 'slider__slide-description';
+        description.textContent = slide.description;
+        content.appendChild(description);
+    }
+    
+    // Add link if it exists
+    if (slide.link && slide.linkText) {
+        const link = document.createElement('a');
+        link.className = 'slider__slide-link';
+        link.href = slide.link;
+        link.textContent = slide.linkText;
+        content.appendChild(link);
+    }
+    
+    return content;
+}
+
+function goToSlide(index) {
+    const slides = document.querySelectorAll('.slider__slide');
+    const dots = document.querySelectorAll('.slider__dot');
+    
+    if (index < 0 || index >= slides.length) return;
+    
+    // Remove active class from current slide
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    
+    // Update current slide
+    currentSlide = index;
+    
+    // Add active class to new slide
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+    
+    // Reset auto-play
+    stopAutoPlay();
+    startAutoPlay();
+}
+
+function nextSlide() {
+    const slides = document.querySelectorAll('.slider__slide');
+    const nextIndex = (currentSlide + 1) % slides.length;
+    goToSlide(nextIndex);
+}
+
+function previousSlide() {
+    const slides = document.querySelectorAll('.slider__slide');
+    const prevIndex = (currentSlide - 1 + slides.length) % slides.length;
+    goToSlide(prevIndex);
+}
+
+function startAutoPlay() {
+    stopAutoPlay(); // Clear any existing interval
+    sliderInterval = setInterval(() => {
+        nextSlide();
+    }, 15000); // Change slide every 15 seconds
+}
+
+function stopAutoPlay() {
+    if (sliderInterval) {
+        clearInterval(sliderInterval);
+        sliderInterval = null;
+    }
+}
+
 // ===== Load Travel Content =====
 function loadTravelContent() {
     const travelContent = document.getElementById('travel-content');
@@ -234,6 +375,7 @@ window.addEventListener('scroll', headerScroll);
 
 // ===== Initialize on DOM Load =====
 document.addEventListener('DOMContentLoaded', () => {
+    initSlider();
     loadTechnologyContent();
     loadBooksContent();
     loadTravelContent();
